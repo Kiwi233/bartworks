@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,10 +51,11 @@ public class Circuit_Programmer extends GT_Generic_Item implements IElectricItem
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void addInformation(ItemStack aStack, EntityPlayer aPlayer, List aList, boolean aF3_H) {
         super.addInformation(aStack, aPlayer, aList, aF3_H);
         if (aStack != null && aStack.getTagCompound() != null)
-            aList.add(StatCollector.translateToLocal("tooltip.cp.0.name")+" " + (aStack.getTagCompound().getBoolean("HasChip") ? StatCollector.translateToLocal("tooltip.bw.yes.name") : StatCollector.translateToLocal("tooltip.bw.no.name")));
+            aList.add(StatCollector.translateToLocal("tooltip.cp.0.name") + " " + (aStack.getTagCompound().getBoolean("HasChip") ? StatCollector.translateToLocal("tooltip.bw.yes.name") : StatCollector.translateToLocal("tooltip.bw.no.name")));
         aList.add(StatCollector.translateToLocal("tooltip.bw.0.name") + ChatColorHelper.DARKGREEN + " BartWorks");
     }
 
@@ -67,15 +68,16 @@ public class Circuit_Programmer extends GT_Generic_Item implements IElectricItem
     }
 
     @SideOnly(Side.CLIENT)
+    @SuppressWarnings("unchecked")
     public void getSubItems(Item p_150895_1_, CreativeTabs p_150895_2_, List itemList) {
         ItemStack itemStack = new ItemStack(this, 1);
-        if (getChargedItem(itemStack) == this) {
+        if (this.getChargedItem(itemStack) == this) {
             ItemStack charged = new ItemStack(this, 1);
             ElectricItem.manager.charge(charged, Integer.MAX_VALUE, Integer.MAX_VALUE, true, false);
             itemList.add(charged);
         }
-        if (getEmptyItem(itemStack) == this) {
-            itemList.add(new ItemStack(this, 1, getMaxDamage()));
+        if (this.getEmptyItem(itemStack) == this) {
+            itemList.add(new ItemStack(this, 1, this.getMaxDamage()));
         }
     }
 

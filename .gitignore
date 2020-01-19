@@ -25,6 +25,7 @@
 *.bin
 *.lock
 *.sqlite
+/old
 
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
@@ -32,6 +33,15 @@ hs_err_pid*
 /eclipse
 /build
 /out
+/run
 /.gradle
 /venv
-/libs
+/libs/*
+!/libs/TecTech-1.7.10-3.7.3-deobf.jar
+!/libs/CodeChickenCore-1.7.10-1.0.4.35-dev.jar
+!/libs/CodeChickenLib-1.7.10-1.1.1.99-dev.jar
+!/libs/NotEnoughItems-1.7.10-1.0.4.95-dev.jar
+!/libs/gregtech-5.09.32-dev.jar
+SetupWorkspaces.bat
+SetupDevWorkspaces.bat
+Idea.bat

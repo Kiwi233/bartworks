@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,11 +31,11 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Objects;
 
 import static cpw.mods.fml.common.registry.GameRegistry.findBlock;
 
+@SuppressWarnings("ALL")
 public final class BioVatLogicAdder {
 
 
@@ -60,11 +60,11 @@ public final class BioVatLogicAdder {
             IsSv.put(stack, sv);
         }
 
+        public static int MaxSV = 150;
+
         public static int getMaxSv() {
-            int ret = 150;
-            Iterator it = BioVatLogicAdder.RadioHatch.getMaSv().iterator();
-            while (it.hasNext()) {
-                BioVatLogicAdder.MaterialSvPair pair = (BioVatLogicAdder.MaterialSvPair) it.next();
+            int ret = MaxSV;
+            for (MaterialSvPair pair : RadioHatch.getMaSv()) {
                 if (pair.getSievert() > ret)
                     ret = pair.getSievert();
             }

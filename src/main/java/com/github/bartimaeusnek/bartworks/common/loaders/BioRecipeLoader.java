@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,6 @@ import com.github.bartimaeusnek.bartworks.common.tileentities.tiered.GT_MetaTile
 import com.github.bartimaeusnek.bartworks.common.tileentities.tiered.GT_MetaTileEntity_RadioHatch;
 import com.github.bartimaeusnek.bartworks.util.BWRecipes;
 import com.github.bartimaeusnek.bartworks.util.BW_Util;
-import com.github.bartimaeusnek.bartworks.util.BioCulture;
 import cpw.mods.fml.common.Loader;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.enums.ItemList;
@@ -36,6 +35,7 @@ import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_OreDictUnificator;
+import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.GT_Utility;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -48,6 +48,7 @@ import net.minecraftforge.oredict.OreDictionary;
 public class BioRecipeLoader extends RecipeLoader {
 
     @Override
+    @SuppressWarnings("deprecation")
     public void run() {
 
         //DNAExtractionModule
@@ -158,8 +159,8 @@ public class BioRecipeLoader extends RecipeLoader {
         Materials[] circuits = {Materials.Advanced, Materials.Data, Materials.Elite, Materials.Master, Materials.Ultimate, Materials.Superconductor};
         for (int i = 3; i < GT_Values.VN.length; i++) {
             //12625
-            BioLab[(i - 3)] = new GT_MetaTileEntity_BioLab(ConfigHandler.IDOffset + GT_Values.VN.length * 6 + i, "bw.biolab"+GT_Values.VN[i], GT_Values.VN[i] + " "+StatCollector.translateToLocal("tile.biolab.name"), i).getStackForm(1L);
-            RadioHatch[(i - 3)] = new GT_MetaTileEntity_RadioHatch(ConfigHandler.IDOffset + GT_Values.VN.length * 7 - 2 + i ,"bw.radiohatch"+ GT_Values.VN[i], GT_Values.VN[i] + " "+StatCollector.translateToLocal("tile.radiohatch.name"), i).getStackForm(1L);
+            BioLab[(i - 3)] = new GT_MetaTileEntity_BioLab(ConfigHandler.IDOffset + GT_Values.VN.length * 6 + i, "bw.biolab" + GT_Values.VN[i], GT_Values.VN[i] + " " + StatCollector.translateToLocal("tile.biolab.name"), i).getStackForm(1L);
+            RadioHatch[(i - 3)] = new GT_MetaTileEntity_RadioHatch(ConfigHandler.IDOffset + GT_Values.VN.length * 7 - 2 + i, "bw.radiohatch" + GT_Values.VN[i], GT_Values.VN[i] + " " + StatCollector.translateToLocal("tile.radiohatch.name"), i).getStackForm(1L);
             try {
                 ItemStack machinehull = ItemList.MACHINE_HULLS[i].get(1L);
                 GT_ModHandler.addCraftingRecipe(
@@ -313,6 +314,16 @@ public class BioRecipeLoader extends RecipeLoader {
                     BW_Util.STANDART
             );
 
+            BWRecipes.instance.addBioLabRecipeIncubation(
+                    new ItemStack(Blocks.dirt),
+                    BioCultureLoader.anaerobicOil,
+                    new int[]{100},
+                    new FluidStack[]{fluidStack},
+                    1500,
+                    BW_Util.getMachineVoltageFromTier(4),
+                    BW_Util.STANDART
+            );
+
             BWRecipes.instance.addBacterialVatRecipe(
                     new ItemStack[]{new ItemStack(Items.sugar, 64)},
                     new FluidStack[]{new FluidStack(fluidStack, 100)},
@@ -358,5 +369,25 @@ public class BioRecipeLoader extends RecipeLoader {
                 400,
                 BW_Util.getMachineVoltageFromTier(1)
         );
+
+        BWRecipes.instance.addBacterialVatRecipe(
+                null,
+                new FluidStack[]{Materials.FermentedBiomass.getFluid(10000)},
+                BioCultureLoader.anaerobicOil,
+                new FluidStack[]{new FluidStack(FluidLoader.fulvicAcid,1000)},
+                2748,
+                BW_Util.getMachineVoltageFromTier(3)
+        );
+        GT_Values.RA.addFluidHeaterRecipe(GT_Utility.getIntegratedCircuit(10),new FluidStack(FluidLoader.fulvicAcid,1000),new FluidStack(FluidLoader.heatedfulvicAcid,1000),90, BW_Util.getMachineVoltageFromTier(2));
+        GT_Values.RA.addChemicalRecipe(GT_Utility.getIntegratedCircuit(10),null,new FluidStack(FluidLoader.heatedfulvicAcid,1000),new FluidStack(FluidLoader.Kerogen,1000),null,75, BW_Util.getMachineVoltageFromTier(2));
+        GT_Values.RA.addPyrolyseRecipe(Materials.Wood.getDust(10),new FluidStack(FluidLoader.Kerogen,1000),10,null,Materials.Oil.getFluid(1000),105, BW_Util.getMachineVoltageFromTier(3));
+    }
+
+    public static void runOnServerStarted(){
+        for (GT_Recipe recipe : GT_Recipe.GT_Recipe_Map.sFermentingRecipes.mRecipeList){
+            FluidStack[] flInput = new FluidStack[]{new FluidStack(recipe.mFluidInputs[0], recipe.mFluidInputs[0].amount*100)};
+            FluidStack[] flOutput = new FluidStack[]{new FluidStack(recipe.mFluidOutputs[0], recipe.mFluidOutputs[0].amount)};
+            BWRecipes.instance.addBacterialVatRecipe(new ItemStack[]{null},BioCultureLoader.generalPurposeFermentingBacteria,flInput,flOutput,recipe.mDuration > 10 ? recipe.mDuration/10 : recipe.mDuration,recipe.mEUt,GT_Utility.getTier(recipe.mEUt));
+        }
     }
 }

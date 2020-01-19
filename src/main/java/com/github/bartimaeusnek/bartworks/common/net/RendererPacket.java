@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ package com.github.bartimaeusnek.bartworks.common.net;
 
 import com.github.bartimaeusnek.bartworks.MainMod;
 import com.github.bartimaeusnek.bartworks.common.tileentities.multis.GT_TileEntity_BioVat;
-import com.github.bartimaeusnek.bartworks.util.BW_Util;
+import com.github.bartimaeusnek.bartworks.util.BW_ColorUtil;
 import com.github.bartimaeusnek.bartworks.util.Coords;
 import com.google.common.io.ByteArrayDataInput;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -59,11 +59,11 @@ public class RendererPacket extends GT_Packet {
     @Override
     public byte[] encode() {
 
-        byte r = (byte) (((integer >> 16) & 0xFF) + Byte.MIN_VALUE);
-        byte g = (byte) (((integer >> 8) & 0xFF) + Byte.MIN_VALUE);
-        byte b = (byte) (((integer >> 0) & 0xFF) + Byte.MIN_VALUE);
-        byte checksum = (byte) (coords.x % 25 + coords.y % 25 + coords.z % 25 + coords.wID % 25 + integer % 25 + removal);
-        return ByteBuffer.allocate(19).putInt(0, coords.x).putShort(4, (short) coords.y).putInt(6, coords.z).putInt(10, coords.wID).put(14, r).put(15, g).put(16, b).put(17, removal).put(18, checksum).array();
+        byte r = (byte) (((this.integer >> 16) & 0xFF) + Byte.MIN_VALUE);
+        byte g = (byte) (((this.integer >> 8) & 0xFF) + Byte.MIN_VALUE);
+        byte b = (byte) (((this.integer) & 0xFF) + Byte.MIN_VALUE);
+        byte checksum = (byte) (this.coords.x % 25 + this.coords.y % 25 + this.coords.z % 25 + this.coords.wID % 25 + this.integer % 25 + this.removal);
+        return ByteBuffer.allocate(19).putInt(0, this.coords.x).putShort(4, this.coords.y).putInt(6, this.coords.z).putInt(10, this.coords.wID).put(14, r).put(15, g).put(16, b).put(17, this.removal).put(18, checksum).array();
     }
 
 //    /**
@@ -73,7 +73,7 @@ public class RendererPacket extends GT_Packet {
 //    public void decodetest (byte[] buffer){
 //        this.coords=new Coords(ByteBuffer.wrap(buffer).getInt(0),ByteBuffer.wrap(buffer).getShort(4),ByteBuffer.wrap(buffer).getInt(6),ByteBuffer.wrap(buffer).getInt(10));
 //        int[] rgb = {ByteBuffer.wrap(buffer).get(14)-Byte.MIN_VALUE, ByteBuffer.wrap(buffer).get(15)-Byte.MIN_VALUE, ByteBuffer.wrap(buffer).get(16)-Byte.MIN_VALUE};
-//        this.integer= BW_Util.getColorFromArray(rgb);
+//        this.integer= BW_Util.getColorFromRGBArray(rgb);
 //        this.removal=ByteBuffer.wrap(buffer).get(17);
 //
 //        byte checksum = (byte) (coords.x%25+coords.y%25+coords.z%25+coords.wID%25+integer%25+removal);
@@ -87,26 +87,26 @@ public class RendererPacket extends GT_Packet {
 
         this.coords = new Coords(ByteBuffer.wrap(buffer).getInt(0), ByteBuffer.wrap(buffer).getShort(4), ByteBuffer.wrap(buffer).getInt(6), ByteBuffer.wrap(buffer).getInt(10));
         int[] rgb = {ByteBuffer.wrap(buffer).get(14) - Byte.MIN_VALUE, ByteBuffer.wrap(buffer).get(15) - Byte.MIN_VALUE, ByteBuffer.wrap(buffer).get(16) - Byte.MIN_VALUE};
-        this.integer = BW_Util.getColorFromArray(rgb);
+        this.integer = BW_ColorUtil.getColorFromRGBArray(rgb);
         this.removal = ByteBuffer.wrap(buffer).get(17);
 
-        byte checksum = (byte) (coords.x % 25 + coords.y % 25 + coords.z % 25 + coords.wID % 25 + integer % 25 + removal);
+        byte checksum = (byte) (this.coords.x % 25 + this.coords.y % 25 + this.coords.z % 25 + this.coords.wID % 25 + this.integer % 25 + this.removal);
 
         if (checksum != ByteBuffer.wrap(buffer).get(18)) {
             MainMod.LOGGER.error("BW Packet was corrupted or modified!");
             return null;
         }
 
-        return new RendererPacket(coords, integer, removal == 1);
+        return new RendererPacket(this.coords, this.integer, this.removal == 1);
     }
 
     @Override
     public void process(IBlockAccess iBlockAccess) {
         if (FMLCommonHandler.instance().getSide().isClient()) {
-            if (removal == 0)
-                GT_TileEntity_BioVat.staticColorMap.put(coords, integer);
+            if (this.removal == 0)
+                GT_TileEntity_BioVat.staticColorMap.put(this.coords, this.integer);
             else
-                GT_TileEntity_BioVat.staticColorMap.remove(coords);
+                GT_TileEntity_BioVat.staticColorMap.remove(this.coords);
         }
     }
 }

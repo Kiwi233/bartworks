@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,20 +38,32 @@ public class BioCultureLoader implements Runnable {
     private static final BioDNA BIO_DNA_WHINE_YEAST = BioDNA.createAndRegisterBioDNA("Saccharomyces cerevisiae var bayanus", EnumRarity.uncommon);
     private static final BioDNA BIO_DNA_BEER_YEAST = BioDNA.createAndRegisterBioDNA("Saccharomyces cerevisiae var cerevisiae", EnumRarity.uncommon);
     private static final BioData eColiData = BioData.createAndRegisterBioData("Escherichia koli", EnumRarity.uncommon, 10000, 0);
+    private static final BioDNA BIO_DNA_ANAEROBIC_OIL = BioDNA.createAndRegisterBioDNA("Pseudomonas Veronii", EnumRarity.uncommon);
+    private static final BioData BIO_DATA_ANAEROBIC_OIL = BioData.createAndRegisterBioData("Pseudomonas Veronii", EnumRarity.uncommon, 5000, 1);
     public static BioCulture CommonYeast;
     public static BioCulture WhineYeast;
     public static BioCulture BeerYeast;
     public static BioCulture rottenFleshBacteria;
     public static BioCulture eColi;
-
+    public static BioCulture anaerobicOil;
+    public static BioCulture generalPurposeFermentingBacteria;
     @Override
     public void run() {
-        CommonYeast = BioCulture.createAndRegisterBioCulture(new Color(255, 248, 200), "Saccharomyces cerevisiae", BioPlasmid.convertDataToPlasmid(BIO_DATA_YEAST), BioDNA.convertDataToDNA(BIO_DATA_YEAST), true);
-        WhineYeast = BioCulture.createAndRegisterBioCulture(new Color(255, 248, 200), "Saccharomyces cerevisiae var bayanus", BioPlasmid.convertDataToPlasmid(BIO_DATA_YEAST), BIO_DNA_WHINE_YEAST, true);
-        BeerYeast = BioCulture.createAndRegisterBioCulture(new Color(255, 248, 200), "Saccharomyces cerevisiae var cerevisiae", BioPlasmid.convertDataToPlasmid(BIO_DATA_YEAST), BIO_DNA_BEER_YEAST, true);
-        rottenFleshBacteria = BioCulture.createAndRegisterBioCulture(new Color(110, 40, 25), "Escherichia cadaver", BioPlasmid.convertDataToPlasmid(BIO_DATA_BETA_LACMATASE), BioDNA.convertDataToDNA(BIO_DATA_BETA_LACMATASE), false);
-        eColi = BioCulture.createAndRegisterBioCulture(new Color(149, 132, 75), "Escherichia koli", BioPlasmid.convertDataToPlasmid(eColiData), BioDNA.convertDataToDNA(eColiData), true);
+        BioCultureLoader.CommonYeast = BioCulture.createAndRegisterBioCulture(new Color(255, 248, 200), "Saccharomyces cerevisiae", BioPlasmid.convertDataToPlasmid(BioCultureLoader.BIO_DATA_YEAST), BioDNA.convertDataToDNA(BioCultureLoader.BIO_DATA_YEAST), true);
+        BioCultureLoader.WhineYeast = BioCulture.createAndRegisterBioCulture(new Color(255, 248, 200), "Saccharomyces cerevisiae var bayanus", BioPlasmid.convertDataToPlasmid(BioCultureLoader.BIO_DATA_YEAST), BioCultureLoader.BIO_DNA_WHINE_YEAST,EnumRarity.uncommon, true);
+        BioCultureLoader.BeerYeast = BioCulture.createAndRegisterBioCulture(new Color(255, 248, 200), "Saccharomyces cerevisiae var cerevisiae", BioPlasmid.convertDataToPlasmid(BioCultureLoader.BIO_DATA_YEAST), BioCultureLoader.BIO_DNA_BEER_YEAST, EnumRarity.uncommon,true);
+        BioCultureLoader.rottenFleshBacteria = BioCulture.createAndRegisterBioCulture(new Color(110, 40, 25), "Escherichia cadaver", BioPlasmid.convertDataToPlasmid(BioCultureLoader.BIO_DATA_BETA_LACMATASE), BioDNA.convertDataToDNA(BioCultureLoader.BIO_DATA_BETA_LACMATASE), false);
+        BioCultureLoader.eColi = BioCulture.createAndRegisterBioCulture(new Color(149, 132, 75), "Escherichia koli", BioPlasmid.convertDataToPlasmid(BioCultureLoader.eColiData), BioDNA.convertDataToDNA(BioCultureLoader.eColiData), true);
+        BioCultureLoader.anaerobicOil = BioCulture.createAndRegisterBioCulture(new Color(0, 0, 0), "Pseudomonas Veronii", BioPlasmid.convertDataToPlasmid(BioCultureLoader.BIO_DNA_ANAEROBIC_OIL), BioDNA.convertDataToDNA(BioCultureLoader.BIO_DATA_ANAEROBIC_OIL), true);
+        BioCultureLoader.generalPurposeFermentingBacteria = BioCulture.createAndRegisterBioCulture(new Color(127, 69, 26), "Saccharomyces escherichia", BioPlasmid.convertDataToPlasmid(BioCultureLoader.BIO_DATA_YEAST), BioDNA.convertDataToDNA(BioCultureLoader.BIO_DATA_BETA_LACMATASE), EnumRarity.epic,true);
 
+        BioCultureLoader.CommonYeast.setLocalisedName("Common Yeast");
+        BioCultureLoader.WhineYeast.setLocalisedName("Whine Yeast");
+        BioCultureLoader.BeerYeast.setLocalisedName("Beer Yeast");
+        BioCultureLoader.rottenFleshBacteria.setLocalisedName("Rotten Flesh Bacteria");
+        BioCultureLoader.eColi.setLocalisedName("eColi Bacteria");
+        BioCultureLoader.anaerobicOil.setLocalisedName("Anaerobic Oil Bacteria");
+        BioCultureLoader.generalPurposeFermentingBacteria.setLocalisedName("General Purpose Fermenting Bacteria");
     }
 
 }

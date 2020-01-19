@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ public class GT_GUIContainer_CircuitProgrammer extends GuiContainer {
     @Override
     protected void drawGuiContainerBackgroundLayer(float p_146976_1_, int p_146976_2_, int p_146976_3_) {
         GL11.glColor4f(1F, 1F, 1F, 1F);
-        Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
-        drawTexturedModalRect(guiLeft - 79, guiTop, 0, 0, 256, 165);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(GT_GUIContainer_CircuitProgrammer.texture);
+        this.drawTexturedModalRect(this.guiLeft - 79, this.guiTop, 0, 0, 256, 165);
     }
 }

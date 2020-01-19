@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -58,16 +58,17 @@ import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static gregtech.api.enums.GT_Values.V;
 
 public class GT_TileEntity_Windmill extends GT_MetaTileEntity_MultiBlockBase {
 
-    private static IIcon[] iIcons = new IIcon[2];
-    private static IIconContainer[] iIconContainers = new IIconContainer[2];
-    private static ITexture[] iTextures = new ITexture[3];
+    private static final IIcon[] iIcons = new IIcon[2];
+    private static final IIconContainer[] iIconContainers = new IIconContainer[2];
+    private static final ITexture[] iTextures = new ITexture[3];
 
-    private final ArrayList<TileEntityDispenser> tedList = new ArrayList<TileEntityDispenser>();
+    private final ArrayList<TileEntityDispenser> tedList = new ArrayList<>();
     private BW_RotorBlock rotorBlock;
     private byte hasDoor;
 
@@ -102,31 +103,35 @@ public class GT_TileEntity_Windmill extends GT_MetaTileEntity_MultiBlockBase {
     public boolean recipe_fallback(ItemStack aStack) {
         //sight... fallback to the macerator recipes
         GT_Recipe.GT_Recipe_Map tMap = GT_Recipe.GT_Recipe_Map.sMaceratorRecipes;
-        if (tMap == null)
-            return false;
-        GT_Recipe tRecipe = tMap.findRecipe(getBaseMetaTileEntity(), false, false, V[1], null, aStack);
+        GT_Recipe tRecipe = tMap.findRecipe(this.getBaseMetaTileEntity(), false, false, V[1], null, aStack);
         if (tRecipe == null)
             return false;
         if (tRecipe.getOutput(0) != null) {
             aStack.stackSize--;
-            mOutputItems[0] = tRecipe.getOutput(0);
+            this.mOutputItems[0] = tRecipe.getOutput(0);
 
             if (new XSTR().nextInt(2) == 0) {
                 if (tRecipe.getOutput(1) != null)
-                    mOutputItems[1] = tRecipe.getOutput(1);
-                else if (GT_OreDictUnificator.getAssociation(aStack) == null || GT_OreDictUnificator.getAssociation(aStack).mMaterial == null || GT_OreDictUnificator.getAssociation(aStack).mMaterial.mMaterial == null ||
-                        BW_Util.checkStackAndPrefix(mOutputItems[0]) && GT_OreDictUnificator.getAssociation(mOutputItems[0]).mMaterial.mMaterial == Materials.Flint ||
-                        BW_Util.checkStackAndPrefix(mOutputItems[0]) && GT_OreDictUnificator.getAssociation(mOutputItems[0]).mMaterial.mMaterial == Materials.Sugar ||
-                        BW_Util.checkStackAndPrefix(mOutputItems[0]) && GT_OreDictUnificator.getAssociation(mOutputItems[0]).mMaterial.mMaterial == Materials.Wheat ||
-                        BW_Util.checkStackAndPrefix(mOutputItems[0]) && GT_OreDictUnificator.getAssociation(mOutputItems[0]).mMaterial.mMaterial == Materials.Wood ||
-                        BW_Util.checkStackAndPrefix(mOutputItems[0]) && GT_OreDictUnificator.getAssociation(mOutputItems[0]).mMaterial.mMaterial == Materials.Clay ||
-                        BW_Util.checkStackAndPrefix(mOutputItems[0]) && GT_OreDictUnificator.getAssociation(mOutputItems[0]).mMaterial.mMaterial == Materials.Ash ||
-                        BW_Util.checkStackAndPrefix(mOutputItems[0]) && GT_OreDictUnificator.getAssociation(mOutputItems[0]).mMaterial.mMaterial == Materials.Snow ||
-                        BW_Util.checkStackAndPrefix(mOutputItems[0]) && GT_OreDictUnificator.getAssociation(mOutputItems[0]).mMaterial.mMaterial == Materials.Stone ||
-                        BW_Util.checkStackAndPrefix(mOutputItems[0]) && GT_OreDictUnificator.getAssociation(mOutputItems[0]).mMaterial.mMaterial == Materials.MeatRaw ||
-                        BW_Util.checkStackAndPrefix(mOutputItems[0]) && GT_OreDictUnificator.getAssociation(mOutputItems[0]).mMaterial.mMaterial == Materials.MeatCooked
+                    this.mOutputItems[1] = tRecipe.getOutput(1);
+                else if (!BW_Util.checkStackAndPrefix(this.mOutputItems[0]) ||
+                        !(
+                                BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial.mSubTags.contains(SubTag.METAL) ||
+                                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial.mSubTags.contains(SubTag.CRYSTAL) ||
+                                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial.mSubTags.contains(SubTag.CRYSTALLISABLE)
+                        )
+                        ||
+                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial == Materials.Flint ||
+                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial == Materials.Sugar ||
+                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial == Materials.Wheat ||
+                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial == Materials.Wood ||
+                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial == Materials.Clay ||
+                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial == Materials.Ash ||
+                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial == Materials.Snow ||
+                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial == Materials.Stone ||
+                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial == Materials.MeatRaw ||
+                        BW_Util.checkStackAndPrefix(this.mOutputItems[0]) && GT_OreDictUnificator.getAssociation(this.mOutputItems[0]).mMaterial.mMaterial == Materials.MeatCooked
                 )
-                    mOutputItems[1] = tRecipe.getOutput(0);
+                    this.mOutputItems[1] = tRecipe.getOutput(0);
             }
         }
         this.mMaxProgresstime = (tRecipe.mDuration * 2 * 100);
@@ -230,17 +235,17 @@ public class GT_TileEntity_Windmill extends GT_MetaTileEntity_MultiBlockBase {
             itemStack.stackSize -= 1;
             this.mMaxProgresstime = 60 * 20 * 100;
             if (new XSTR().nextInt(2) == 0)
-                this.mOutputItems[0] = (GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Wood, 2L));
+                this.mOutputItems[0] = (GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Wood, 12L));
             else
-                this.mOutputItems[0] = (GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Wood, 1L));
+                this.mOutputItems[0] = (GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Wood, 6L));
             return true;
         } else if (Block.getBlockFromItem(itemStack.getItem()).equals(Blocks.log2)) {
             itemStack.stackSize -= 1;
             this.mMaxProgresstime = 60 * 20 * 100;
             if (new XSTR().nextInt(2) == 0)
-                this.mOutputItems[0] = (GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Wood, 2L));
+                this.mOutputItems[0] = (GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Wood, 12L));
             else
-                this.mOutputItems[0] = (GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Wood, 1L));
+                this.mOutputItems[0] = (GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Wood, 6L));
             return true;
         } else if (Block.getBlockFromItem(itemStack.getItem()).equals(Blocks.pumpkin)) {
             itemStack.stackSize -= 1;
@@ -267,7 +272,7 @@ public class GT_TileEntity_Windmill extends GT_MetaTileEntity_MultiBlockBase {
                 GT_OreDictUnificator.getAssociation(itemStack).mMaterial.mMaterial == null ||
                 GT_OreDictUnificator.getAssociation(itemStack).mMaterial.mMaterial.getDust(1) == null
         )
-            return recipe_fallback(itemStack); //fallback for all non-unificated Items
+            return this.recipe_fallback(itemStack); //fallback for all non-unificated Items
 
         //Ore Unificator shit for balance
         if (OrePrefixes.ingot.equals(GT_OreDictUnificator.getAssociation(itemStack).mPrefix) || OrePrefixes.gem.equals(GT_OreDictUnificator.getAssociation(itemStack).mPrefix)) {
@@ -324,7 +329,7 @@ public class GT_TileEntity_Windmill extends GT_MetaTileEntity_MultiBlockBase {
                 this.mOutputItems[0] = (GT_OreDictUnificator.get(OrePrefixes.dust, GT_OreDictUnificator.getAssociation(itemStack).mMaterial.mMaterial, 1L));
             return true;
         }
-        return recipe_fallback(itemStack); //2nd fallback
+        return this.recipe_fallback(itemStack); //2nd fallback
     }
 
     @Override
@@ -340,6 +345,7 @@ public class GT_TileEntity_Windmill extends GT_MetaTileEntity_MultiBlockBase {
         return false;
     }
 
+    @SuppressWarnings("ALL")
     public boolean addOutput(ItemStack aStack) {
         if (GT_Utility.isStackInvalid(aStack))
             return false;
@@ -557,26 +563,26 @@ public class GT_TileEntity_Windmill extends GT_MetaTileEntity_MultiBlockBase {
     @Override
     public String[] getDescription() {
         String[] dsc = StatCollector.translateToLocal("tooltip.tile.windmill.0.name").split(";");
-        String[] fdsc =  new String[dsc.length+1];
+        String[] fdsc = new String[dsc.length + 1];
         for (int i = 0; i < dsc.length; i++) {
-            fdsc[i]=dsc[i];
-            fdsc[dsc.length]=StatCollector.translateToLocal("tooltip.bw.1.name") + ChatColorHelper.DARKGREEN + " BartWorks";
+            fdsc[i] = dsc[i];
+            fdsc[dsc.length] = StatCollector.translateToLocal("tooltip.bw.1.name") + ChatColorHelper.DARKGREEN + " BartWorks";
         }
         return fdsc;
     }
 
     @Override
     public String[] getInfoData() {
-        return new String[]{"Progress:", this.mProgresstime + " Grindings of " + this.mMaxProgresstime + " needed Grindings", "GrindPower:", Integer.toString(this.rotorBlock.getGrindPower()) + "KU/t"};
+        return new String[]{"Progress:", this.mProgresstime + " Grindings of " + this.mMaxProgresstime + " needed Grindings", "GrindPower:", this.rotorBlock.getGrindPower() + "KU/t"};
     }
 
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister aBlockIconRegister) {
-        iIcons[0] = Blocks.brick_block.getIcon(0, 0);
-        iIconContainers[0] = new IIconContainer() {
+        GT_TileEntity_Windmill.iIcons[0] = Blocks.brick_block.getIcon(0, 0);
+        GT_TileEntity_Windmill.iIconContainers[0] = new IIconContainer() {
             @Override
             public IIcon getIcon() {
-                return iIcons[0];
+                return GT_TileEntity_Windmill.iIcons[0];
             }
 
             @Override
@@ -590,11 +596,11 @@ public class GT_TileEntity_Windmill extends GT_MetaTileEntity_MultiBlockBase {
             }
         };
 
-        iIcons[1] = aBlockIconRegister.registerIcon(MainMod.MOD_ID + ":windmill_top");
-        iIconContainers[1] = new IIconContainer() {
+        GT_TileEntity_Windmill.iIcons[1] = aBlockIconRegister.registerIcon(MainMod.MOD_ID + ":windmill_top");
+        GT_TileEntity_Windmill.iIconContainers[1] = new IIconContainer() {
             @Override
             public IIcon getIcon() {
-                return iIcons[1];
+                return GT_TileEntity_Windmill.iIcons[1];
             }
 
             @Override
@@ -616,23 +622,17 @@ public class GT_TileEntity_Windmill extends GT_MetaTileEntity_MultiBlockBase {
 
         ITexture[] ret = new ITexture[6];
 
-        if (isClientSide()) {
+        if (this.isClientSide()) {
 
             if (aFacing == aSide || aSide == 0) {
-                iTextures[0] = new GT_RenderedTexture(iIconContainers[0]);
-                for (int i = 0; i < ret.length; i++) {
-                    ret[i] = iTextures[0];
-                }
+                GT_TileEntity_Windmill.iTextures[0] = new GT_RenderedTexture(GT_TileEntity_Windmill.iIconContainers[0]);
+                Arrays.fill(ret, GT_TileEntity_Windmill.iTextures[0]);
             } else if (aSide == 1) {
-                iTextures[1] = new GT_RenderedTexture(iIconContainers[1]);
-                for (int i = 0; i < ret.length; i++) {
-                    ret[i] = iTextures[1];
-                }
+                GT_TileEntity_Windmill.iTextures[1] = new GT_RenderedTexture(GT_TileEntity_Windmill.iIconContainers[1]);
+                Arrays.fill(ret, GT_TileEntity_Windmill.iTextures[1]);
             } else {
-                iTextures[2] = new GT_RenderedTexture(Textures.BlockIcons.COVER_WOOD_PLATE);
-                for (int i = 0; i < ret.length; i++) {
-                    ret[i] = iTextures[2];
-                }
+                GT_TileEntity_Windmill.iTextures[2] = new GT_RenderedTexture(Textures.BlockIcons.COVER_WOOD_PLATE);
+                Arrays.fill(ret, GT_TileEntity_Windmill.iTextures[2]);
             }
         }
         return ret;

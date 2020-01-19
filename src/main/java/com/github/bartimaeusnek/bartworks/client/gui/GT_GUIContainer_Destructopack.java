@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,8 +43,8 @@ public class GT_GUIContainer_Destructopack extends GuiContainer {
     @Override
     public void drawGuiContainerBackgroundLayer(float f, int j, int i) {
         GL11.glColor4f(1F, 1F, 1F, 1F);
-        Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, 175, 165);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(GT_GUIContainer_Destructopack.texture);
+        this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, 175, 165);
     }
 
     @Override

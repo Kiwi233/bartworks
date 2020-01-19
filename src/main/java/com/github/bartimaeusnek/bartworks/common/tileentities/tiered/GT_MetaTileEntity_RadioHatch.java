@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,11 +23,14 @@
 package com.github.bartimaeusnek.bartworks.common.tileentities.tiered;
 
 import com.github.bartimaeusnek.bartworks.API.BioVatLogicAdder;
+import com.github.bartimaeusnek.bartworks.API.IRadMaterial;
 import com.github.bartimaeusnek.bartworks.MainMod;
 import com.github.bartimaeusnek.bartworks.client.gui.GT_GUIContainer_RadioHatch;
 import com.github.bartimaeusnek.bartworks.server.container.GT_Container_RadioHatch;
-import com.github.bartimaeusnek.bartworks.util.BW_Util;
+import com.github.bartimaeusnek.bartworks.util.BW_ColorUtil;
 import com.github.bartimaeusnek.bartworks.util.ChatColorHelper;
+import com.github.bartimaeusnek.crossmod.GTpp.loader.RadioHatchCompat;
+import cpw.mods.fml.common.Loader;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
@@ -55,38 +58,38 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
     private short[] colorForGUI;
     private byte mass;
     private String material;
-    private byte coverage = 0;
+    private byte coverage;
 
     public GT_MetaTileEntity_RadioHatch(int aID, String aName, String aNameRegional, int aTier) {
-        super(aID, aName, aNameRegional, aTier, 1, new String[]{StatCollector.translateToLocal("tooltip.tile.radhatch.0.name"), StatCollector.translateToLocal("tooltip.tile.tiereddsc.3.name")+" " + (aTier - 2) + " " + ((aTier - 2) >= 2 ? StatCollector.translateToLocal("tooltip.bw.kg.1.name") : StatCollector.translateToLocal("tooltip.bw.kg.0.name")), StatCollector.translateToLocal("tooltip.tile.radhatch.1.name"), StatCollector.translateToLocal("tooltip.bw.1.name") + ChatColorHelper.DARKGREEN + " BartWorks"});
-        cap = aTier - 2;
+        super(aID, aName, aNameRegional, aTier, 1, new String[]{StatCollector.translateToLocal("tooltip.tile.radhatch.0.name"), StatCollector.translateToLocal("tooltip.tile.tiereddsc.3.name") + " " + (aTier - 2) + " " + ((aTier - 2) >= 2 ? StatCollector.translateToLocal("tooltip.bw.kg.1.name") : StatCollector.translateToLocal("tooltip.bw.kg.0.name")), StatCollector.translateToLocal("tooltip.tile.radhatch.1.name"), StatCollector.translateToLocal("tooltip.bw.1.name") + ChatColorHelper.DARKGREEN + " BartWorks"});
+        this.cap = aTier - 2;
     }
 
     public GT_MetaTileEntity_RadioHatch(String aName, int aTier, String aDescription, ITexture[][][] aTextures) {
         super(aName, aTier, 1, aDescription, aTextures);
-        cap = aTier - 2;
+        this.cap = aTier - 2;
     }
 
     public GT_MetaTileEntity_RadioHatch(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
         super(aName, aTier, 1, aDescription, aTextures);
-        cap = aTier - 2;
+        this.cap = aTier - 2;
     }
 
     public static long calcDecayTicks(int x) {
-        long ret = 0;
-        if (x >= 83 && x <= 100)
-            ret = (long) Math.ceil((8000D * Math.tanh(-x / 20D) + 8000D) * 1000D);
-        else if (x == 43)
+        long ret;
+        if (x == 43)
             ret = 5000;
         else if (x == 61)
             ret = 4500;
-        else if (x > 100)
+        else if (x <= 100)
+            ret = (long) Math.ceil((8000D * Math.tanh(-x / 20D) + 8000D) * 1000D);
+        else
             ret = (long) Math.ceil(((8000D * Math.tanh(-x / 65D) + 8000D)));
         return ret;//*20;
     }
 
     public int getSievert() {
-        return this.sievert - (int) Math.ceil((float) this.sievert / 100f * (float) coverage);
+        return this.sievert - (int) Math.ceil((float) this.sievert / 100f * (float) this.coverage);
     }
 
     public short[] getColorForGUI() {
@@ -104,7 +107,7 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
     }
 
     public void setCoverage(short coverage) {
-        byte nu = 0;
+        byte nu;
         if (coverage > 100)
             nu = 100;
         else if (coverage < 0)
@@ -124,7 +127,7 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
 
     @Override
     public IMetaTileEntity newMetaEntity(IGregTechTileEntity iGregTechTileEntity) {
-        return new GT_MetaTileEntity_RadioHatch(mName, mTier, mDescriptionArray, mTextures);
+        return new GT_MetaTileEntity_RadioHatch(this.mName, this.mTier, this.mDescriptionArray, this.mTextures);
     }
 
     @Override
@@ -151,16 +154,16 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
         if (this.getBaseMetaTileEntity().isServerSide()) {
 
             if (this.mass > 0)
-                ++timer;
+                ++this.timer;
 
-            if (this.mass > 0 && this.sievert > 0 && calcDecayTicks(this.sievert) > 0) {
-                if (timer % (calcDecayTicks(this.sievert)) == 0) {
+            if (this.mass > 0 && this.sievert > 0 && GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert) > 0) {
+                if (this.timer % (GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert)) == 0) {
                     this.mass--;
-                    if (mass == 0) {
-                        material = StatCollector.translateToLocal("tooltip.bw.empty.name");
-                        sievert = 0;
+                    if (this.mass == 0) {
+                        this.material = StatCollector.translateToLocal("tooltip.bw.empty.name");
+                        this.sievert = 0;
                     }
-                    timer = 1;
+                    this.timer = 1;
                 }
             }
 
@@ -168,6 +171,31 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
 
             if (lStack == null)
                 return;
+
+
+            IRadMaterial radmat = null;
+            //gt++ compat
+            if (Loader.isModLoaded("miscutils"))
+                radmat = RadioHatchCompat.GTppRadChecker(lStack);
+
+            if (lStack.getItem() instanceof IRadMaterial || radmat != null) {
+                if (radmat == null)
+                    radmat = ((IRadMaterial) lStack.getItem());
+                int sv = radmat.getRadiationLevel(lStack);
+                if (sv > BioVatLogicAdder.RadioHatch.getMaxSv())
+                    BioVatLogicAdder.RadioHatch.MaxSV = sv;
+                if (this.mass == 0 || this.sievert == sv) {
+                    if (this.mass + radmat.getAmountOfMaterial(lStack) <= this.cap) {
+                        this.mass += radmat.getAmountOfMaterial(lStack);
+                        this.sievert = sv;
+                        this.mInventory[0].stackSize--;
+                        this.updateSlots();
+                        this.colorForGUI = radmat.getColorForGUI(lStack);
+                        this.material = radmat.getNameForGUI(lStack);
+                        return;
+                    }
+                }
+            }
 
             if (GT_Utility.areStacksEqual(lStack, ItemList.NaquadahCell_1.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.NaquadahCell_2.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.NaquadahCell_4.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.ThoriumCell_1.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.ThoriumCell_2.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.ThoriumCell_4.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.Uraniumcell_1.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.Uraniumcell_2.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.Uraniumcell_4.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.Moxcell_1.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.Moxcell_2.get(1)) || GT_Utility.areStacksEqual(lStack, ItemList.Moxcell_4.get(1))) {
                 Materials materials = Materials.Uranium;
@@ -189,13 +217,13 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
 
 
                 if (this.mass == 0 || this.sievert == calculateSv(materials)) {
-                    if (this.mass + kg <= cap) {
+                    if (this.mass + kg <= this.cap) {
                         this.sievert = calculateSv(materials);
                         this.mass += kg;
                         this.mInventory[0].stackSize--;
-                        updateSlots();
-                        colorForGUI = materials.mColor.mRGBa;
-                        material = materials.mName;
+                        this.updateSlots();
+                        this.colorForGUI = materials.mColor.mRGBa;
+                        this.material = materials.mName;
                     }
                 }
             }
@@ -207,9 +235,9 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
                             this.mass++;
                             this.sievert = BioVatLogicAdder.RadioHatch.getIsSv().get(varStack);
                             this.mInventory[0].stackSize--;
-                            updateSlots();
-                            colorForGUI = null;
-                            material = StatCollector.translateToLocal(varStack.getUnlocalizedName());
+                            this.updateSlots();
+                            this.colorForGUI = null;
+                            this.material = StatCollector.translateToLocal(varStack.getUnlocalizedName());
                             return;
                         }
                     }
@@ -217,7 +245,7 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
             }
 
             //check material for general validity
-            if (lStack != null && GT_OreDictUnificator.getAssociation(lStack) != null && GT_OreDictUnificator.getAssociation(lStack).mMaterial != null && GT_OreDictUnificator.getAssociation(lStack).mMaterial.mMaterial != null) {
+            if (GT_OreDictUnificator.getAssociation(lStack) != null && GT_OreDictUnificator.getAssociation(lStack).mMaterial != null && GT_OreDictUnificator.getAssociation(lStack).mMaterial.mMaterial != null) {
                 //check orePrefix for general validity
                 if (GT_OreDictUnificator.getAssociation(lStack).mPrefix != null) {
                     OrePrefixes orePrefixes = GT_OreDictUnificator.getAssociation(lStack).mPrefix;
@@ -227,13 +255,13 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
                         //check material for specialised validity
                         if (materials.getProtons() >= 83 && materials.getProtons() != 125 || materials.getProtons() == 61 || materials.getProtons() == 43) {
                             if (this.mass == 0 || this.sievert == calculateSv(materials)) {
-                                if ((this.mass + (orePrefixes.equals(OrePrefixes.stickLong) ? 2 : 1)) <= cap) {
+                                if ((this.mass + (orePrefixes.equals(OrePrefixes.stickLong) ? 2 : 1)) <= this.cap) {
                                     this.sievert = calculateSv(materials);
                                     this.mass += orePrefixes.equals(OrePrefixes.stickLong) ? 2 : 1;
                                     this.mInventory[0].stackSize--;
-                                    updateSlots();
-                                    colorForGUI = materials.mColor.mRGBa;
-                                    material = materials.mName;
+                                    this.updateSlots();
+                                    this.colorForGUI = materials.mColor.mRGBa;
+                                    this.material = materials.mName;
                                 }
                             }
                         }
@@ -252,9 +280,10 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
 
     @Override
     public String[] getInfoData() {
-        if (calcDecayTicks(this.sievert) != 0)
-            return new String[]{StatCollector.translateToLocal("tooltip.tile.radhatch.2.name")+" "+ material, StatCollector.translateToLocal("tooltip.tile.radhatch.3.name")+" "+ sievert, StatCollector.translateToLocal("tooltip.tile.radhatch.4.name")+" "+mass, StatCollector.translateToLocal("tooltip.tile.radhatch.5.name")+" "+ + ((calcDecayTicks(this.sievert)) - timer % (calcDecayTicks(this.sievert) * 60)) + StatCollector.translateToLocal("tooltip.tile.radhatch.6.name")+"/" + ((calcDecayTicks(this.sievert)) - timer % (calcDecayTicks(this.sievert))) / 20 + StatCollector.translateToLocal("tooltip.tile.radhatch.7.name")+"/" + ((calcDecayTicks(this.sievert)) - timer % (calcDecayTicks(this.sievert))) / 20 / 60 + StatCollector.translateToLocal("tooltip.tile.radhatch.8.name")+"/" + ((calcDecayTicks(this.sievert)) - timer % (calcDecayTicks(this.sievert))) / 20 / 60 / 60 + StatCollector.translateToLocal("tooltip.tile.radhatch.9.name")};
-        else return new String[]{StatCollector.translateToLocal("tooltip.tile.radhatch.2.name")+" "+StatCollector.translateToLocal("tooltip.bw.empty.name"), StatCollector.translateToLocal("tooltip.tile.radhatch.3.name")+" "+"0", StatCollector.translateToLocal("tooltip.tile.radhatch.4.name")+" "+"0"};
+        if (GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert) != 0)
+            return new String[]{StatCollector.translateToLocal("tooltip.tile.radhatch.2.name") + " " + this.material, StatCollector.translateToLocal("tooltip.tile.radhatch.3.name") + " " + this.sievert, StatCollector.translateToLocal("tooltip.tile.radhatch.4.name") + " " + this.mass, StatCollector.translateToLocal("tooltip.tile.radhatch.5.name") + " " + +((GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert)) - this.timer % (GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert) * 60)) + StatCollector.translateToLocal("tooltip.tile.radhatch.6.name") + "/" + ((GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert)) - this.timer % (GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert))) / 20 + StatCollector.translateToLocal("tooltip.tile.radhatch.7.name") + "/" + ((GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert)) - this.timer % (GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert))) / 20 / 60 + StatCollector.translateToLocal("tooltip.tile.radhatch.8.name") + "/" + ((GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert)) - this.timer % (GT_MetaTileEntity_RadioHatch.calcDecayTicks(this.sievert))) / 20 / 60 / 60 + StatCollector.translateToLocal("tooltip.tile.radhatch.9.name")};
+        else
+            return new String[]{StatCollector.translateToLocal("tooltip.tile.radhatch.2.name") + " " + StatCollector.translateToLocal("tooltip.bw.empty.name"), StatCollector.translateToLocal("tooltip.tile.radhatch.3.name") + " " + "0", StatCollector.translateToLocal("tooltip.tile.radhatch.4.name") + " " + "0"};
     }
 
     public boolean isSimpleMachine() {
@@ -291,13 +320,13 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
 
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
-        aNBT.setByte("mMass", mass);
-        aNBT.setByte("mSv", (byte) (sievert - 100));
-        aNBT.setByte("mCoverage", coverage);
-        aNBT.setInteger("mTextColor", BW_Util.getColorFromArray(getColorForGUI()));
-        if (material != null && !material.isEmpty())
-            aNBT.setString("mMaterial", material);
-        aNBT.setLong("timer", timer);
+        aNBT.setByte("mMass", this.mass);
+        aNBT.setByte("mSv", (byte) (this.sievert - 100));
+        aNBT.setByte("mCoverage", this.coverage);
+        aNBT.setInteger("mTextColor", BW_ColorUtil.getColorFromRGBArray(this.getColorForGUI()));
+        if (this.material != null && !this.material.isEmpty())
+            aNBT.setString("mMaterial", this.material);
+        aNBT.setLong("timer", this.timer);
         super.saveNBTData(aNBT);
     }
 
@@ -307,12 +336,12 @@ public class GT_MetaTileEntity_RadioHatch extends GT_MetaTileEntity_Hatch {
 
     @Override
     public void loadNBTData(NBTTagCompound aNBT) {
-        timer = aNBT.getLong("timer");
-        mass = aNBT.getByte("mMass");
-        sievert = aNBT.getByte("mSv") + 100;
-        coverage = aNBT.getByte("mCoverage");
-        colorForGUI = BW_Util.splitColortoArray(aNBT.getInteger("mTextColor"));
-        material = aNBT.getString("mMaterial");
+        this.timer = aNBT.getLong("timer");
+        this.mass = aNBT.getByte("mMass");
+        this.sievert = aNBT.getByte("mSv") + 100;
+        this.coverage = aNBT.getByte("mCoverage");
+        this.colorForGUI = BW_ColorUtil.splitColorToRBGArray(aNBT.getInteger("mTextColor"));
+        this.material = aNBT.getString("mMaterial");
         super.loadNBTData(aNBT);
     }
 }

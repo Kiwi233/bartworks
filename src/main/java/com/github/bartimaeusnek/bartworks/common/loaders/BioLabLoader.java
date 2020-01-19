@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,16 @@ package com.github.bartimaeusnek.bartworks.common.loaders;
 public class BioLabLoader implements Runnable {
 
 
-    FluidLoader fluidLoader;
-    BioItemList bioItemList;
-    BioRecipeLoader bioRecipeLoader;
+    private FluidLoader fluidLoader;
+    private BioItemList bioItemList;
+    private BioRecipeLoader bioRecipeLoader;
 
     @Override
     public void run() {
-        fluidLoader = new FluidLoader();
-        fluidLoader.run();
-        bioItemList = new BioItemList();
-        bioRecipeLoader = new BioRecipeLoader();
-        bioRecipeLoader.run();
+        this.fluidLoader = new FluidLoader();
+        this.fluidLoader.run();
+        this.bioItemList = new BioItemList();
+        this.bioRecipeLoader = new BioRecipeLoader();
+        this.bioRecipeLoader.run();
     }
 }

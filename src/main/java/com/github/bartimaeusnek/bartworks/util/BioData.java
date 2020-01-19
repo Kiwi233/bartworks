@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class BioData {
-    public static final ArrayList<BioData> BIO_DATA_ARRAY_LIST = new ArrayList<BioData>();
+    public static final ArrayList<BioData> BIO_DATA_ARRAY_LIST = new ArrayList<>();
 
     protected String name;
     protected int ID;
@@ -59,6 +59,7 @@ public class BioData {
         this.name = bioData.name;
         this.ID = bioData.ID;
         this.chance = bioData.chance;
+        this.tier = bioData.tier;
     }
 
     public static BioData convertBioPlasmidToBioData(BioPlasmid bioPlasmid) {
@@ -111,14 +112,14 @@ public class BioData {
         BioData bioData = (BioData) o;
         return this.getID() == bioData.getID() || (
                 this.getChance() == bioData.getChance() &&
-                this.getTier() == bioData.getTier() &&
-                Objects.equals(this.getName(), bioData.getName()) &&
-                this.getRarity() == bioData.getRarity());
+                        this.getTier() == bioData.getTier() &&
+                        Objects.equals(this.getName(), bioData.getName()) &&
+                        this.getRarity() == bioData.getRarity());
     }
 
     @Override
     public int hashCode() {
-        return MurmurHash3.murmurhash3_x86_32(ByteBuffer.allocate(13).putInt(MurmurHash3.murmurhash3_x86_32(this.getName(),0,this.getName().length(),31)).put(BW_Util.getByteFromRarity(this.getRarity())).putInt(this.getChance()).putInt(this.getTier()).array(),0,13,31);
+        return MurmurHash3.murmurhash3_x86_32(ByteBuffer.allocate(13).putInt(MurmurHash3.murmurhash3_x86_32(this.getName(), 0, this.getName().length(), 31)).put(BW_Util.getByteFromRarity(this.getRarity())).putInt(this.getChance()).putInt(this.getTier()).array(), 0, 13, 31);
     }
 
     public int getTier() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,21 +45,21 @@ import net.minecraft.world.chunk.Chunk;
 
 import javax.annotation.Nonnull;
 import java.util.EnumMap;
-import java.util.Iterator;
 import java.util.List;
 
 /*
  * Original GT File slightly Modified
  */
+@SuppressWarnings("ALL")
 @ChannelHandler.Sharable
 public class BW_Network extends MessageToMessageCodec<FMLProxyPacket, GT_Packet> implements IGT_NetworkHandler {
 
-    private EnumMap<Side, FMLEmbeddedChannel> mChannel;
-    private GT_Packet[] mSubChannels;
+    private final EnumMap<Side, FMLEmbeddedChannel> mChannel;
+    private final GT_Packet[] mSubChannels;
 
     public BW_Network() {
-        this.mChannel = NetworkRegistry.INSTANCE.newChannel("BartWorks", new ChannelHandler[]{this, new HandlerShared()});
-        this.mSubChannels = new GT_Packet[]{new RendererPacket(), new CircuitProgrammerPacket()};
+        this.mChannel = NetworkRegistry.INSTANCE.newChannel("BartWorks", this, new BW_Network.HandlerShared());
+        this.mSubChannels = new GT_Packet[]{new RendererPacket(), new CircuitProgrammerPacket(), new MetaBlockPacket(), new OreDictCachePacket(), new ServerJoinedPackage()};
     }
 
     protected void encode(ChannelHandlerContext aContext, GT_Packet aPacket, List<Object> aOutput) throws Exception {
@@ -98,10 +98,8 @@ public class BW_Network extends MessageToMessageCodec<FMLProxyPacket, GT_Packet>
 
     public void sendPacketToAllPlayersInRange(World aWorld, @Nonnull GT_Packet aPacket, int aX, int aZ) {
         if (!aWorld.isRemote) {
-            Iterator var5 = aWorld.playerEntities.iterator();
 
-            while (var5.hasNext()) {
-                Object tObject = var5.next();
+            for (Object tObject : aWorld.playerEntities) {
                 if (!(tObject instanceof EntityPlayerMP)) {
                     break;
                 }

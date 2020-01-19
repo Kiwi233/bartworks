@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,25 +22,37 @@
 
 package com.github.bartimaeusnek.bartworks.neiHandler;
 
+import codechicken.nei.api.API;
 import codechicken.nei.api.IConfigureNEI;
 import com.github.bartimaeusnek.bartworks.MainMod;
+import com.github.bartimaeusnek.bartworks.common.loaders.FluidLoader;
+import com.github.bartimaeusnek.bartworks.common.loaders.ItemRegistry;
 import com.github.bartimaeusnek.bartworks.util.BWRecipes;
+import cpw.mods.fml.common.Optional;
+import net.minecraft.item.ItemStack;
 
+@Optional.Interface(iface = "codechicken.nei.api.API", modid = "NotEnoughItems")
 public class NEI_BW_Config implements IConfigureNEI {
 
     public static boolean sIsAdded = true;
 
     public void loadConfig() {
-        sIsAdded = false;
+        API.hideItem(new ItemStack(ItemRegistry.TAB));
+        API.hideItem(new ItemStack(FluidLoader.bioFluidBlock));
+        API.hideItem(new ItemStack(ItemRegistry.bw_fake_glasses));
+        NEI_BW_Config.sIsAdded = false;
+        new BW_NEI_OreHandler();
         new BW_NEI_BioVatHandler(BWRecipes.instance.getMappingsFor(BWRecipes.BACTERIALVATBYTE));
         new BW_NEI_BioLabHandler(BWRecipes.instance.getMappingsFor(BWRecipes.BIOLABBYTE));
-        sIsAdded = true;
+        NEI_BW_Config.sIsAdded = true;
     }
 
+    @Optional.Method(modid = "NotEnoughItems")
     public String getName() {
         return "BartWorks NEI Plugin";
     }
 
+    @Optional.Method(modid = "NotEnoughItems")
     public String getVersion() {
         return MainMod.APIVERSION;
     }

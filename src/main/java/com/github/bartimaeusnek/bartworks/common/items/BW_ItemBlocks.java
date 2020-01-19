@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ package com.github.bartimaeusnek.bartworks.common.items;
 import com.github.bartimaeusnek.bartworks.API.ITileAddsInformation;
 import com.github.bartimaeusnek.bartworks.MainMod;
 import com.github.bartimaeusnek.bartworks.common.blocks.BW_GlasBlocks;
+import com.github.bartimaeusnek.bartworks.util.BW_ColorUtil;
 import com.github.bartimaeusnek.bartworks.util.BW_Util;
 import com.github.bartimaeusnek.bartworks.util.ChatColorHelper;
 import cpw.mods.fml.relauncher.Side;
@@ -39,14 +40,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class BW_ItemBlocks extends ItemBlock {
 
-    protected final String mNoMobsToolTip = GT_LanguageManager.addStringLocalization("gt.nomobspawnsonthisblock", "Mobs cannot Spawn on this Block");
-    protected final String mNoTileEntityToolTip = GT_LanguageManager.addStringLocalization("gt.notileentityinthisblock", "This is NOT a TileEntity!");
+    private final String mNoMobsToolTip = GT_LanguageManager.addStringLocalization("gt.nomobspawnsonthisblock", "Mobs cannot Spawn on this Block");
+    private final String mNoTileEntityToolTip = GT_LanguageManager.addStringLocalization("gt.notileentityinthisblock", "This is NOT a TileEntity!");
 
-    public BW_ItemBlocks(final Block par1) {
+    public BW_ItemBlocks(Block par1) {
         super(par1);
         this.setMaxDamage(0);
         this.setHasSubtypes(true);
@@ -54,30 +56,29 @@ public class BW_ItemBlocks extends ItemBlock {
     }
 
     @Override
-    public int getMetadata(final int aMeta) {
+    public int getMetadata(int aMeta) {
         return aMeta;
     }
 
     @Override
-    public String getUnlocalizedName(final ItemStack aStack) {
+    public String getUnlocalizedName(ItemStack aStack) {
         return this.field_150939_a.getUnlocalizedName() + "." + this.getDamage(aStack);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(final ItemStack aStack, final EntityPlayer aPlayer, final List aList, final boolean aF3_H) {
+    @SuppressWarnings("unchecked")
+    public void addInformation(ItemStack aStack, EntityPlayer aPlayer, List aList, boolean aF3_H) {
         if (this.field_150939_a instanceof BW_GlasBlocks)
-            aList.add(StatCollector.translateToLocal("tooltip.glas.0.name") +" " + BW_Util.getColorForTier(BW_Util.getTierFromGlasMeta(aStack.getItemDamage())) + GT_Values.VN[BW_Util.getTierFromGlasMeta(aStack.getItemDamage())]);
+            aList.add(StatCollector.translateToLocal("tooltip.glas.0.name") + " " + BW_ColorUtil.getColorForTier(BW_Util.getTierFromGlasMeta(aStack.getItemDamage())) + GT_Values.VN[BW_Util.getTierFromGlasMeta(aStack.getItemDamage())]);
         if (this.field_150939_a instanceof ITileAddsInformation) {
-            for (int i = 0; i < ((ITileAddsInformation) this.field_150939_a).getInfoData().length; i++) {
-                aList.add(((ITileAddsInformation) this.field_150939_a).getInfoData()[i]);
-            }
+            aList.addAll(Arrays.asList(((ITileAddsInformation) this.field_150939_a).getInfoData()));
         }
         aList.add(this.mNoMobsToolTip);
         if (!(this.field_150939_a instanceof ITileEntityProvider))
             aList.add(this.mNoTileEntityToolTip);
 
-        aList.add(StatCollector.translateToLocal("tooltip.bw.0.name")+ ChatColorHelper.DARKGREEN + " BartWorks");
+        aList.add(StatCollector.translateToLocal("tooltip.bw.0.name") + ChatColorHelper.DARKGREEN + " BartWorks");
     }
 
     @Override
@@ -89,7 +90,7 @@ public class BW_ItemBlocks extends ItemBlock {
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining) {
-        return getIcon(stack, renderPass);
+        return this.getIcon(stack, renderPass);
     }
 
     @Override

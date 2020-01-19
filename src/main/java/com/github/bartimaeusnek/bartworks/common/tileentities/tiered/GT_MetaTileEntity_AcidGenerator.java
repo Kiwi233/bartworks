@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ import net.minecraft.util.StatCollector;
 
 public class GT_MetaTileEntity_AcidGenerator extends GT_MetaTileEntity_BasicGenerator {
 
-    public GT_MetaTileEntity_AcidGenerator(int aID, String aName, String aNameRegional, int aTier,  ITexture... aTextures) {
+    public GT_MetaTileEntity_AcidGenerator(int aID, String aName, String aNameRegional, int aTier, ITexture... aTextures) {
         super(aID, aName, aNameRegional, aTier, new String[]{}, aTextures);
     }
 
@@ -56,7 +56,7 @@ public class GT_MetaTileEntity_AcidGenerator extends GT_MetaTileEntity_BasicGene
 
     @Override
     public int getEfficiency() {
-        return 100 - 3 * mTier;
+        return 100 - 3 * this.mTier;
     }
 
     @Override
@@ -108,8 +108,7 @@ public class GT_MetaTileEntity_AcidGenerator extends GT_MetaTileEntity_BasicGene
         return aSide == this.getBaseMetaTileEntity().getFrontFacing();
     }
 
-    @SuppressWarnings("deprecation")
     public String[] getDescription() {
-        return new String[]{StatCollector.translateToLocal("tooltip.tile.acidgen.0.name"), StatCollector.translateToLocal("tooltip.tile.acidgen.1.name"), StatCollector.translateToLocal("tooltip.tile.tiereddsc.0.name")+" "+ ChatColorHelper.YELLOW + GT_Values.V[this.mTier], StatCollector.translateToLocal("tooltip.rotor.2.name")+" "+ ChatColorHelper.YELLOW + getEfficiency(), StatCollector.translateToLocal("tooltip.tile.tiereddsc.2.name")+" "+ ChatColorHelper.YELLOW + maxAmperesOut(), StatCollector.translateToLocal("tooltip.bw.1.name") + ChatColorHelper.DARKGREEN + " BartWorks"};
+        return new String[]{StatCollector.translateToLocal("tooltip.tile.acidgen.0.name"), StatCollector.translateToLocal("tooltip.tile.acidgen.1.name"), StatCollector.translateToLocal("tooltip.tile.tiereddsc.0.name") + " " + ChatColorHelper.YELLOW + GT_Values.V[this.mTier], StatCollector.translateToLocal("tooltip.rotor.2.name") + " " + ChatColorHelper.YELLOW + this.getEfficiency(), StatCollector.translateToLocal("tooltip.tile.tiereddsc.2.name") + " " + ChatColorHelper.YELLOW + this.maxAmperesOut(), StatCollector.translateToLocal("tooltip.bw.1.name") + ChatColorHelper.DARKGREEN + " BartWorks"};
     }
 }

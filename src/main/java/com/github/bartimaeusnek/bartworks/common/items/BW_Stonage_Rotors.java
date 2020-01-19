@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,13 +44,13 @@ import static ic2.api.item.IKineticRotor.GearboxType.WIND;
 
 public class BW_Stonage_Rotors extends Item implements IKineticRotor {
 
-    private int[] DiaMinMax = new int[3];
-    private float eff;
-    private GearboxType type;
-    private ResourceLocation tex;
-    private String itemTex;
+    private final int[] DiaMinMax = new int[3];
+    private final float eff;
+    private final IKineticRotor.GearboxType type;
+    private final ResourceLocation tex;
+    private final String itemTex;
 
-    public BW_Stonage_Rotors(int diameter, float eff, int min, int max, int durability, GearboxType type, ResourceLocation tex, String Name, String itemTex) {
+    public BW_Stonage_Rotors(int diameter, float eff, int min, int max, int durability, IKineticRotor.GearboxType type, ResourceLocation tex, String Name, String itemTex) {
         this.DiaMinMax[0] = diameter;
         this.DiaMinMax[1] = min;
         this.DiaMinMax[2] = max;
@@ -65,20 +65,21 @@ public class BW_Stonage_Rotors extends Item implements IKineticRotor {
 
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister iconRegister) {
-        this.itemIcon = iconRegister.registerIcon(MainMod.MOD_ID + ":" + itemTex);
+        this.itemIcon = iconRegister.registerIcon(MainMod.MOD_ID + ":" + this.itemTex);
     }
 
+    @SuppressWarnings("unchecked")
     public void addInformation(ItemStack itemStack, EntityPlayer player, List info, boolean b) {
         info.add(StatCollector.translateToLocalFormatted("ic2.itemrotor.wind.info", this.DiaMinMax[1], this.DiaMinMax[2]));
-        GearboxType type = null;
+        IKineticRotor.GearboxType type = null;
         if (Minecraft.getMinecraft().currentScreen instanceof GuiWaterKineticGenerator) {
             type = WATER;
         } else if (Minecraft.getMinecraft().currentScreen instanceof GuiWindKineticGenerator) {
             type = WIND;
         }
-        info.add(StatCollector.translateToLocal("tooltip.rotor.0.name")+" " + this.DiaMinMax[0]);
-        info.add(StatCollector.translateToLocal("tooltip.rotor.1.name")+" " + (this.getMaxDamage() - this.getDamage(itemStack)) + "/" + this.getMaxDamage());
-        info.add(StatCollector.translateToLocal("tooltip.rotor.2.name")+" " + this.eff);
+        info.add(StatCollector.translateToLocal("tooltip.rotor.0.name") + " " + this.DiaMinMax[0]);
+        info.add(StatCollector.translateToLocal("tooltip.rotor.1.name") + " " + (this.getMaxDamage() - this.getDamage(itemStack)) + "/" + this.getMaxDamage());
+        info.add(StatCollector.translateToLocal("tooltip.rotor.2.name") + " " + this.eff);
         if (type != null) {
             info.add(StatCollector.translateToLocal(("ic2.itemrotor.fitsin." + this.isAcceptedType(itemStack, type))));
         }
@@ -111,7 +112,7 @@ public class BW_Stonage_Rotors extends Item implements IKineticRotor {
     }
 
     @Override
-    public boolean isAcceptedType(ItemStack itemStack, GearboxType gearboxType) {
+    public boolean isAcceptedType(ItemStack itemStack, IKineticRotor.GearboxType gearboxType) {
         return gearboxType.equals(this.type);
     }
 }

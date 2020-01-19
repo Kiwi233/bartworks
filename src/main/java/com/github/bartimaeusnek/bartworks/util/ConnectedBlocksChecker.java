@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,18 +32,12 @@ import java.util.HashSet;
 
 public class ConnectedBlocksChecker {
 
-    public final HashSet<Coords> hashset = new HashSet<Coords>();
+    public final HashSet<Coords> hashset = new HashSet<>(2048);
 
     public static byte check_sourroundings(Coords C, Block b) {
         byte ret = 0;
         World w = DimensionManager.getWorld(C.wID);
         int x = C.x, y = C.y, z = C.z;
-
-        if (w.getBlock(x, y + 1, z).equals(b))
-            ret = (byte) (ret | 0b000001);
-
-        if (w.getBlock(x, y - 1, z).equals(b))
-            ret = (byte) (ret | 0b000010);
 
         if (w.getBlock(x + 1, y, z).equals(b))
             ret = (byte) (ret | 0b000100);
@@ -57,6 +51,13 @@ public class ConnectedBlocksChecker {
         if (w.getBlock(x, y, z - 1).equals(b))
             ret = (byte) (ret | 0b100000);
 
+        if (w.getBlock(x, y + 1, z).equals(b))
+            ret = (byte) (ret | 0b000001);
+
+        if (w.getBlock(x, y - 1, z).equals(b))
+            ret = (byte) (ret | 0b000010);
+
+
         return ret;
     }
 
@@ -66,16 +67,6 @@ public class ConnectedBlocksChecker {
         int wID = w.provider.dimensionId;
 
         byte sides = check_sourroundings(w, x, y, z, b);
-
-        if (((sides | 0b111110) == 0b111111) && !hashset.contains(new Coords(x, y + 1, z, wID))) {
-            ret++;
-            ret += get_connected(w, x, y + 1, z, b);
-        }
-
-        if (((sides | 0b111101) == 0b111111) && !hashset.contains(new Coords(x, y - 1, z, wID))) {
-            ret++;
-            ret += get_connected(w, x, y - 1, z, b);
-        }
 
         if (((sides | 0b111011) == 0b111111) && !hashset.contains(new Coords(x + 1, y, z, wID))) {
             ret++;
@@ -97,6 +88,17 @@ public class ConnectedBlocksChecker {
             ret += get_connected(w, x, y, z - 1, b);
         }
 
+
+        if (((sides | 0b111110) == 0b111111) && !hashset.contains(new Coords(x, y + 1, z, wID))) {
+            ret++;
+            ret += get_connected(w, x, y + 1, z, b);
+        }
+
+        if (((sides | 0b111101) == 0b111111) && !hashset.contains(new Coords(x, y - 1, z, wID))) {
+            ret++;
+            ret += get_connected(w, x, y - 1, z, b);
+        }
+
         return ret;
     }
 
@@ -110,12 +112,6 @@ public class ConnectedBlocksChecker {
 
         hashset.add(new Coords(x, y, z, wID));
 
-        if (w.getBlock(x, y + 1, z).equals(b))
-            ret = (byte) (ret | 0b000001);
-
-        if (w.getBlock(x, y - 1, z).equals(b))
-            ret = (byte) (ret | 0b000010);
-
         if (w.getBlock(x + 1, y, z).equals(b))
             ret = (byte) (ret | 0b000100);
 
@@ -127,6 +123,12 @@ public class ConnectedBlocksChecker {
 
         if (w.getBlock(x, y, z - 1).equals(b))
             ret = (byte) (ret | 0b100000);
+
+        if (w.getBlock(x, y + 1, z).equals(b))
+            ret = (byte) (ret | 0b000001);
+
+        if (w.getBlock(x, y - 1, z).equals(b))
+            ret = (byte) (ret | 0b000010);
 
         return ret;
     }

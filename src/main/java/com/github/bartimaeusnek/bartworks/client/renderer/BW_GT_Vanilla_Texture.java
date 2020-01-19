@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -49,7 +49,7 @@ public class BW_GT_Vanilla_Texture implements IIconContainer {
 
     @Override
     public IIcon getIcon() {
-        return packed;
+        return this.packed;
     }
 
     @Override
@@ -59,6 +59,6 @@ public class BW_GT_Vanilla_Texture implements IIconContainer {
 
     @Override
     public ResourceLocation getTextureFile() {
-        return new ResourceLocation(packed.getIconName());
+        return new ResourceLocation(this.packed.getIconName());
     }
 }

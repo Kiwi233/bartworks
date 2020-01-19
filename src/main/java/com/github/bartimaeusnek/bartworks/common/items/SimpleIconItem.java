@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,15 +29,15 @@ import net.minecraft.item.Item;
 
 public class SimpleIconItem extends Item {
 
-    String tex;
+    private final String tex;
 
     public SimpleIconItem(String tex) {
-        super();
         this.tex = tex;
     }
 
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister iconRegister) {
-        itemIcon = iconRegister.registerIcon("bartworks:" + tex);
+        this.itemIcon = iconRegister.registerIcon("bartworks:" + this.tex);
+
     }
 }

@@ -21,8 +21,14 @@ plugins {
 }
 
 apply plugin: 'forge'
-apply plugin: 'idea'
 apply plugin: 'signing'
+apply plugin: 'idea'
+idea{
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
 
 import de.undercouch.gradle.tasks.download.Download
 
@@ -31,6 +37,7 @@ targetCompatibility = JavaVersion.VERSION_1_8
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+compileJava.options.encoding = 'UTF-8'
 
 ext.configFile = file "build.properties"
 configFile.withReader {
@@ -43,8 +50,6 @@ configFile.withReader {
 version = config.majorUpdate+"."+config.minorUpdate+"."+config.buildNumber
 group= "com.github.bartimaeusnek.bartworks" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "bartworks"+ "[" + config.mc_version + "]"
-
-
 
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
@@ -61,10 +66,50 @@ repositories {
         name = "ic2"
         url = "http://maven.ic2.player.to/"
     }
+    maven { // AppleCore
+        url "http://www.ryanliptak.com/maven/"
+    }
+    maven { // GalacticGreg, YAMCore,..
+        name 'UsrvDE'
+        url "http://jenkins.usrv.eu:8081/nexus/content/repositories/releases/"
+    }
+    ivy {
+        name 'gtnh_download_source_stupid_underscore_typo'
+        artifactPattern "http://downloads.gtnewhorizons.com/Mods_for_Jenkins/[module]_[revision].[ext]"
+    }
+    ivy {
+        name 'gtnh_download_source'
+        artifactPattern "http://downloads.gtnewhorizons.com/Mods_for_Jenkins/[module]-[revision].[ext]"
+    }
+    maven {
+        name = "gt"
+        url = "https://gregtech.overminddl1.com/"
+    }
+    maven {
+        url = "http://maven.cil.li/"
+    }
 }
 
 dependencies {
     compile "net.industrial-craft:industrialcraft-2:${config.ic2.version}:dev"
+    compile "micdoodle8.mods:MicdoodleCore:${config.galacticraft.version}:Dev"
+    compile "micdoodle8.mods:GalacticraftCore:${config.galacticraft.version}:Dev"
+    compile "micdoodle8.mods:Galacticraft-Planets:${config.galacticraft.version}:Dev"
+    compile "li.cil.oc:OpenComputers:MC1.7.10-1.5.+:api"
+    compileOnly "applecore:AppleCore:${config.applecore.version}:api"
+    compileOnly "com.enderio.core:EnderCore:${config.enderiocore.version}:dev"
+    compileOnly "com.enderio:EnderIO:${config.enderio.version}:dev"
+    compileOnly "com.enderio:EnderIO:${config.enderio.version}:dev"
+}
+
+task getRailCraft(type: Download) {
+    onlyIf {
+        !file("libs/Railcraft_1.7.10-9.12.2.0-dev.jar").exists()
+    }
+    src 'http://downloads.gtnewhorizons.com/Mods_for_Jenkins/Railcraft_1.7.10-9.12.2.0-dev.jar'
+    dest file("libs/Railcraft_1.7.10-9.12.2.0-dev.jar")
+    mustRunAfter "deobfBinJar"
+    mustRunAfter "repackMinecraft"
 }
 
 //task getGregTech(type: Download) {
@@ -77,10 +122,10 @@ dependencies {
 //    mustRunAfter "repackMinecraft"
 //}
 
-//tasks.setupCIWorkspace.dependsOn getGregTech
-//tasks.setupDevWorkspace.dependsOn getGregTech
-//tasks.setupDecompWorkspace.dependsOn getGregTech
-//tasks.compileJava.dependsOn getGregTech
+tasks.setupCIWorkspace.dependsOn getRailCraft
+tasks.setupDevWorkspace.dependsOn getRailCraft
+tasks.setupDecompWorkspace.dependsOn getRailCraft
+tasks.compileJava.dependsOn getRailCraft
 
 processResources
 {
@@ -99,6 +144,13 @@ processResources
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
+    }
+}
+
+jar {
+    exclude ("assets/gregtech/textures/items/materialicons/copy.bat")
+    manifest {
+        attributes 'FMLCorePlugin': 'com.github.bartimaeusnek.ASM.BWCorePlugin','FMLCorePluginContainsFMLMod': 'true'
     }
 }
 

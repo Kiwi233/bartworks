@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 package com.github.bartimaeusnek.bartworks.common.blocks;
 
 import com.github.bartimaeusnek.bartworks.API.ITileAddsInformation;
+import com.github.bartimaeusnek.bartworks.API.ITileDropsContent;
 import com.github.bartimaeusnek.bartworks.API.ITileHasDifferentTextureSides;
 import com.github.bartimaeusnek.bartworks.API.ITileWithGUI;
 import com.github.bartimaeusnek.bartworks.MainMod;
@@ -32,12 +33,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 import ic2.api.tile.IWrenchable;
 import ic2.core.IC2;
 import ic2.core.IHasGui;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -50,11 +53,13 @@ import net.minecraftforge.fluids.IFluidContainerItem;
 
 public class BW_TileEntityContainer extends BlockContainer implements ITileAddsInformation {
 
-    Class<? extends TileEntity> tileEntity = null;
+    protected Class<? extends TileEntity> tileEntity;
 
     public BW_TileEntityContainer(Material p_i45386_1_, Class<? extends TileEntity> tileEntity, String blockName) {
         super(p_i45386_1_);
         this.tileEntity = tileEntity;
+        this.setHardness(15.0F);
+        this.setResistance(30.0F);
         this.setCreativeTab(MainMod.BWT);
         this.setBlockName(blockName);
         this.setBlockTextureName(MainMod.MOD_ID + ":" + blockName);
@@ -63,9 +68,9 @@ public class BW_TileEntityContainer extends BlockContainer implements ITileAddsI
     @Override
     public boolean onBlockActivated(World worldObj, int x, int y, int z, EntityPlayer player, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_) {
         if (worldObj.isRemote) {
-            return true;
+            return false;
         }
-        final TileEntity tile = worldObj.getTileEntity(x, y, z);
+        TileEntity tile = worldObj.getTileEntity(x, y, z);
         if (tile instanceof BW_TileEntity_HeatedWaterPump) {
             if (player.getHeldItem() != null && (player.getHeldItem().getItem().equals(Items.bucket) || player.getHeldItem().getItem() instanceof IFluidContainerItem) && ((BW_TileEntity_HeatedWaterPump) tile).drain(1000, false) != null)
                 if (player.getHeldItem().getItem().equals(Items.bucket) && ((BW_TileEntity_HeatedWaterPump) tile).drain(1000, false).amount == 1000) {
@@ -87,15 +92,14 @@ public class BW_TileEntityContainer extends BlockContainer implements ITileAddsI
         return false;
     }
 
-
-    public void onBlockPlacedBy(final World world, final int x, final int y, final int z, final EntityLivingBase entity, final ItemStack itemStack) {
-        final TileEntity tile = world.getTileEntity(x, y, z);
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack itemStack) {
+        TileEntity tile = world.getTileEntity(x, y, z);
         if (tile instanceof IWrenchable && itemStack != null) {
-            final IWrenchable tile2 = (IWrenchable) tile;
+            IWrenchable tile2 = (IWrenchable) tile;
             int meta = itemStack.getItemDamage();
             world.setBlockMetadataWithNotify(x, y, z, meta, 2);
             if (entity != null) {
-                final int face = MathHelper.floor_double(entity.rotationYaw * 4.0f / 360.0f + 0.5) & 0x3;
+                int face = MathHelper.floor_double(entity.rotationYaw * 4.0f / 360.0f + 0.5) & 0x3;
                 switch (face) {
                     case 0:
                         tile2.setFacing((short) 2);
@@ -112,6 +116,19 @@ public class BW_TileEntityContainer extends BlockContainer implements ITileAddsI
                 }
             }
         }
+    }
+
+    @Override
+    public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
+        TileEntity t = world.getTileEntity(x,y,z);
+        if (t instanceof ITileDropsContent){
+            int[] dropSlots = ((ITileDropsContent)t).getDropSlots();
+            for (int dropSlot : dropSlots) {
+                if (((ITileDropsContent) t).getStackInSlot(dropSlot) != null)
+                    world.spawnEntityInWorld(new EntityItem(world, x, y, z, ((BW_TileEntity_HeatedWaterPump) t).getStackInSlot(dropSlot)));
+            }
+        }
+        super.breakBlock(world, x, y, z, block, meta);
     }
 
     @Override

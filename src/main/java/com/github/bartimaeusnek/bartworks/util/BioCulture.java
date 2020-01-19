@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 bartimaeusnek
+ * Copyright (c) 2018-2019 bartimaeusnek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@ package com.github.bartimaeusnek.bartworks.util;
 
 
 import com.github.bartimaeusnek.bartworks.MainMod;
+import gregtech.api.interfaces.IColorModulationContainer;
+import gregtech.api.util.GT_LanguageManager;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
@@ -32,13 +34,20 @@ import net.minecraftforge.fluids.FluidRegistry;
 import java.awt.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
-public class BioCulture extends BioData {
+public class BioCulture extends BioData implements IColorModulationContainer {
 
-    public static final ArrayList<BioCulture> BIO_CULTURE_ARRAY_LIST = new ArrayList<BioCulture>();
-    public static final BioCulture NULLCULTURE = BioCulture.createAndRegisterBioCulture(Color.BLUE, "", BioPlasmid.NULLPLASMID,BioDNA.NULLDNA, false); //fallback NULL culture, also Blue =)
+    public static final ArrayList<BioCulture> BIO_CULTURE_ARRAY_LIST = new ArrayList<>();
+    public static final BioCulture NULLCULTURE = BioCulture.createAndRegisterBioCulture(Color.BLUE, "", BioPlasmid.NULLPLASMID, BioDNA.NULLDNA, false); //fallback NULL culture, also Blue =)
+
+    public String getLocalisedName() {
+        return GT_LanguageManager.getTranslation(this.getName());
+    }
+
+    public void setLocalisedName(String localisedName) {
+        GT_LanguageManager.addStringLocalization(this.getName(),localisedName);
+    }
 
     Color color;
     BioPlasmid plasmid;
@@ -95,14 +104,14 @@ public class BioCulture extends BioData {
         BioCulture ret = getBioCulture(tag.getString("Name"));
 
         if (ret == null)
-                ret = createAndRegisterBioCulture(
-                            new Color(tag.getIntArray("Color")[0], tag.getIntArray("Color")[1], tag.getIntArray("Color")[2]),
-                            tag.getString("Name"),
-                            BioPlasmid.convertDataToPlasmid(getBioDataFromNBTTag(tag.getCompoundTag("Plasmid"))),
-                            BioDNA.convertDataToDNA(getBioDataFromNBTTag(tag.getCompoundTag("DNA"))),
-                            BW_Util.getRarityFromByte(tag.getByte("Rarety")),
-                            tag.getBoolean("Breedable")
-                        );
+            ret = createAndRegisterBioCulture(
+                    new Color(tag.getIntArray("Color")[0], tag.getIntArray("Color")[1], tag.getIntArray("Color")[2]),
+                    tag.getString("Name"),
+                    BioPlasmid.convertDataToPlasmid(getBioDataFromNBTTag(tag.getCompoundTag("Plasmid"))),
+                    BioDNA.convertDataToDNA(getBioDataFromNBTTag(tag.getCompoundTag("DNA"))),
+                    BW_Util.getRarityFromByte(tag.getByte("Rarety")),
+                    tag.getBoolean("Breedable")
+            );
         if (ret.bBreedable)
             ret.setFluid(FluidRegistry.getFluid(tag.getString("Fluid")));
         if (ret.getFluidNotSet()) //should never happen, but better safe than sorry
@@ -111,6 +120,8 @@ public class BioCulture extends BioData {
     }
 
     public static BioCulture getBioCulture(String Name) {
+        if (Name == null || Name.isEmpty())
+            return null;
         for (BioCulture b : BIO_CULTURE_ARRAY_LIST)
             if (b.name.equals(Name))
                 return b;
@@ -130,12 +141,12 @@ public class BioCulture extends BioData {
         return this.mFluid;
     }
 
-    public boolean getFluidNotSet(){
-        return this.mFluid == null && this.isBreedable();
-    }
-
     public void setFluid(Fluid mFluid) {
         this.mFluid = mFluid;
+    }
+
+    public boolean getFluidNotSet() {
+        return this.mFluid == null && this.isBreedable();
     }
 
     public boolean isBreedable() {
@@ -147,7 +158,7 @@ public class BioCulture extends BioData {
     }
 
     public int getColorRGB() {
-        return BW_Util.getColorFromArray(new int[]{this.color.getRed(), this.color.getGreen(), this.color.getBlue()});
+        return BW_ColorUtil.getColorFromRGBArray(new int[]{this.color.getRed(), this.color.getGreen(), this.color.getBlue()});
     }
 
     public Color getColor() {
@@ -168,16 +179,35 @@ public class BioCulture extends BioData {
         return this.plasmid;
     }
 
-    public void setPlasmid(BioPlasmid plasmid) {
+    public BioCulture setPlasmid(BioPlasmid plasmid) {
+        return checkForExisting(new BioCulture(this.color, this.name, this.ID, plasmid, this.dDNA, this.rarity, this.bBreedable));
+    }
+
+    private BioCulture checkForExisting(BioCulture culture) {
+        if (culture == null)
+            return null;
+        for (BioCulture bc : BioCulture.BIO_CULTURE_ARRAY_LIST)
+            if (culture.getdDNA().equals(bc.getdDNA()) && culture.getPlasmid().equals(bc.getPlasmid()))
+                return bc;
+        return culture;
+    }
+
+    public BioCulture setPlasmidUnsafe(BioPlasmid plasmid) {
         this.plasmid = plasmid;
+        return this;
     }
 
     public BioDNA getdDNA() {
         return this.dDNA;
     }
 
-    public void setdDNA(BioDNA dDNA) {
+    public BioCulture setdDNA(BioDNA dDNA) {
+        return checkForExisting(new BioCulture(this.color, this.name, this.ID, this.plasmid, dDNA, this.rarity, this.bBreedable));
+    }
+
+    public BioCulture setdDNAUnsafe(BioDNA dDNA) {
         this.dDNA = dDNA;
+        return this;
     }
 
     @Override
@@ -195,6 +225,11 @@ public class BioCulture extends BioData {
 
     @Override
     public int hashCode() {
-        return MurmurHash3.murmurhash3_x86_32(ByteBuffer.allocate(17).putInt(MurmurHash3.murmurhash3_x86_32(this.getName(),0,this.getName().length(),31)).putInt(this.getColorRGB()).putInt(this.getPlasmid().ID).putInt(this.getdDNA().ID).put((byte) (isBreedable() ? 1 : 0)).array(),0,17,31);
+        return MurmurHash3.murmurhash3_x86_32(ByteBuffer.allocate(17).putInt(MurmurHash3.murmurhash3_x86_32(this.getName(), 0, this.getName().length(), 31)).putInt(this.getColorRGB()).putInt(this.getPlasmid().ID).putInt(this.getdDNA().ID).put((byte) (isBreedable() ? 1 : 0)).array(), 0, 17, 31);
+    }
+
+    @Override
+    public short[] getRGBA() {
+        return new short[]{(short) getColor().getRed(), (short) getColor().getGreen(), (short) getColor().getBlue(), (short) getColor().getAlpha()};
     }
 }
